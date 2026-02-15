@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Post, AdConfig, Category } from '../types';
 import { Facebook, Twitter, Mail, Link as LinkIcon, User, Clock, ArrowLeft, TrendingUp } from 'lucide-react';
+import { AdSlot } from '../App';
 
 interface ArticlePageProps {
   posts: Post[];
@@ -48,7 +49,7 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ posts, ads }) => {
             <span>/</span>
             <span className="text-gray-900 flex items-center">
               {post.category}
-              {badgeAd?.active && <span className="ml-2" dangerouslySetInnerHTML={{ __html: badgeAd.code }} />}
+              {badgeAd && badgeAd.active && <span className="ml-2 inline-block"><AdSlot code={badgeAd.code} active={true} /></span>}
             </span>
          </div>
          <div className="flex items-center gap-4">
@@ -79,9 +80,9 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ posts, ads }) => {
           </header>
 
           {/* Video Ad Spot */}
-          {videoAd?.active && (
+          {videoAd && videoAd.active && (
             <div className="mb-8 overflow-hidden rounded-md">
-              <div dangerouslySetInnerHTML={{ __html: videoAd.code }} />
+              <AdSlot code={videoAd.code} active={true} />
             </div>
           )}
 
@@ -91,14 +92,14 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ posts, ads }) => {
           </figure>
 
           {/* In-text Banner Slot 1 */}
-          {inTextBannerAd?.active && (
+          {inTextBannerAd && inTextBannerAd.active && (
             <div className="my-8 hidden md:block">
-              <div dangerouslySetInnerHTML={{ __html: inTextBannerAd.code }} />
+              <AdSlot code={inTextBannerAd.code} active={true} />
             </div>
           )}
-          {mobileInTextAd?.active && (
+          {mobileInTextAd && mobileInTextAd.active && (
             <div className="my-8 block md:hidden">
-              <div dangerouslySetInnerHTML={{ __html: mobileInTextAd.code }} />
+              <AdSlot code={mobileInTextAd.code} active={true} />
             </div>
           )}
 
@@ -109,9 +110,9 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ posts, ads }) => {
             />
 
             {/* In-article Rectangle Slot */}
-            {inArticleRectAd?.active && (
+            {inArticleRectAd && inArticleRectAd.active && (
               <div className="md:float-right md:ml-8 md:mb-8 md:w-80 w-full flex justify-center py-4">
-                <div dangerouslySetInnerHTML={{ __html: inArticleRectAd.code }} />
+                <AdSlot code={inArticleRectAd.code} active={true} />
               </div>
             )}
           </div>
@@ -135,9 +136,9 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ posts, ads }) => {
         <aside className="lg:col-span-4 space-y-12">
            <div className="sticky top-28 space-y-10">
               {/* Skyscraper Ad */}
-              {skyscraperAd?.active && (
+              {skyscraperAd && skyscraperAd.active && (
                 <div className="bg-gray-50 p-2 flex justify-center border border-gray-100">
-                  <div dangerouslySetInnerHTML={{ __html: skyscraperAd.code }} />
+                  <AdSlot code={skyscraperAd.code} active={true} />
                 </div>
               )}
 
@@ -155,21 +156,6 @@ const ArticlePage: React.FC<ArticlePageProps> = ({ posts, ads }) => {
            </div>
         </aside>
       </div>
-
-      {/* JSON-LD Schema for SEO */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          "headline": post.title,
-          "image": [post.imageUrl],
-          "datePublished": post.date,
-          "author": [{
-            "@type": "Person",
-            "name": post.author
-          }]
-        })}
-      </script>
     </article>
   );
 };

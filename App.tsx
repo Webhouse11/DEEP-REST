@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
 import { Menu, Search, X, TrendingUp, Bell, Shield, Mail, Facebook, Twitter, Instagram, ChevronRight, User } from 'lucide-react';
 import { storageService } from './services/storageService';
@@ -7,6 +7,26 @@ import { Post, Category, AdConfig, SiteSettings } from './types';
 import Home from './pages/Home';
 import ArticlePage from './pages/ArticlePage';
 import Dashboard from './pages/Dashboard';
+
+/**
+ * AdSlot component ensures that scripts inside ad code strings
+ * are properly executed by using createContextualFragment.
+ */
+export const AdSlot = ({ code, active }: { code: string; active?: boolean }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (active && containerRef.current) {
+      containerRef.current.innerHTML = '';
+      const range = document.createRange();
+      const documentFragment = range.createContextualFragment(code);
+      containerRef.current.appendChild(documentFragment);
+    }
+  }, [code, active]);
+
+  if (!active) return null;
+  return <div ref={containerRef} className="w-full h-full" />;
+};
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +40,7 @@ const Header = () => {
       {/* Top Bar */}
       <div className="bg-rose-600 text-white text-[10px] md:text-xs py-1.5 px-4 flex justify-between items-center font-bold tracking-wider uppercase">
         <div className="flex space-x-4">
-          <span>Monday, May 22, 2024</span>
+          <span>{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
           <span className="hidden md:inline">Contact: info@deeprestjournal.com</span>
         </div>
         <div className="flex space-x-4">
@@ -41,10 +61,10 @@ const Header = () => {
         {/* Ad Space */}
         <div className="w-full lg:w-[728px] flex justify-center">
           <div className="hidden lg:block w-full">
-            {topAd && topAd.active && <div dangerouslySetInnerHTML={{ __html: topAd.code }} />}
+            {topAd && <AdSlot code={topAd.code} active={topAd.active} />}
           </div>
           <div className="block lg:hidden w-full">
-            {mobileTopAd && mobileTopAd.active && <div dangerouslySetInnerHTML={{ __html: mobileTopAd.code }} />}
+            {mobileTopAd && <AdSlot code={mobileTopAd.code} active={mobileTopAd.active} />}
           </div>
         </div>
       </div>
@@ -137,7 +157,8 @@ const InterstitialAd = () => {
     if (ad?.active) {
       const shown = sessionStorage.getItem('drj_interstitial_shown');
       if (!shown) {
-        const timer = setTimeout(() => setVisible(true), 1500);
+        // Delay interstitial by 8 seconds to allow user to engage with content first
+        const timer = setTimeout(() => setVisible(true), 8000);
         return () => clearTimeout(timer);
       }
     }
@@ -152,11 +173,13 @@ const InterstitialAd = () => {
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center p-4">
-      <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-        <button onClick={close} className="absolute top-4 right-4 bg-black/10 hover:bg-black/20 p-2 rounded-full transition">
+      <div className="relative w-full max-w-4xl bg-white rounded-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
+        <button onClick={close} className="absolute top-4 right-4 bg-zinc-900 text-white p-2 rounded-full transition hover:bg-black z-10">
           <X size={24} />
         </button>
-        <div dangerouslySetInnerHTML={{ __html: ad.code }} />
+        <div className="max-h-[90vh] overflow-y-auto">
+          <AdSlot code={ad.code} active={true} />
+        </div>
       </div>
     </div>
   );
@@ -171,14 +194,14 @@ const AnchorAd = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[90] bg-white border-t border-gray-300 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] h-12 md:h-16">
+    <div className="fixed bottom-0 left-0 right-0 z-[90] bg-zinc-900 border-t border-rose-600 shadow-[0_-4px_10px_rgba(0,0,0,0.3)] h-10 md:h-12">
       <div className="container mx-auto h-full px-4 relative flex items-center justify-center">
-        <button onClick={() => setVisible(false)} className="absolute -top-6 right-4 bg-gray-800 text-white p-1 rounded-full"><X size={12}/></button>
+        <button onClick={() => setVisible(false)} className="absolute -top-6 right-4 bg-rose-600 text-white p-1 rounded-full hover:bg-rose-700 transition"><X size={12}/></button>
         <div className="hidden md:block w-full h-full">
-          {desktopAnchor?.active && <div className="h-full" dangerouslySetInnerHTML={{ __html: desktopAnchor.code }} />}
+          {desktopAnchor && <AdSlot code={desktopAnchor.code} active={desktopAnchor.active} />}
         </div>
         <div className="block md:hidden w-full h-full">
-          {mobileAnchor?.active && <div className="h-full" dangerouslySetInnerHTML={{ __html: mobileAnchor.code }} />}
+          {mobileAnchor && <AdSlot code={mobileAnchor.code} active={mobileAnchor.active} />}
         </div>
       </div>
     </div>

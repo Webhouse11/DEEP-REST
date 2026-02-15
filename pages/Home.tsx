@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Post, AdConfig, Category } from '../types';
 import { TrendingUp, ChevronRight, Clock } from 'lucide-react';
+import { AdSlot } from '../App';
 
 interface HomeProps {
   posts: Post[];
@@ -87,7 +88,7 @@ const Home: React.FC<HomeProps> = ({ posts, ads }) => {
   const badgeAd = ads.find(a => a.id === 'sponsorship-badge');
   const stickyAd = ads.find(a => a.id === 'sticky-sidebar');
 
-  const Badge = badgeAd?.active ? <div dangerouslySetInnerHTML={{ __html: badgeAd.code }} /> : null;
+  const Badge = badgeAd?.active ? <AdSlot code={badgeAd.code} active={true} /> : null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -109,10 +110,10 @@ const Home: React.FC<HomeProps> = ({ posts, ads }) => {
           {/* Inter-article Ad */}
           <div className="my-10">
             <div className="hidden md:block">
-              {interArticleAd?.active && <div dangerouslySetInnerHTML={{ __html: interArticleAd.code }} />}
+              {interArticleAd && <AdSlot code={interArticleAd.code} active={interArticleAd.active} />}
             </div>
             <div className="block md:hidden">
-              {mobileInterArticleAd?.active && <div dangerouslySetInnerHTML={{ __html: mobileInterArticleAd.code }} />}
+              {mobileInterArticleAd && <AdSlot code={mobileInterArticleAd.code} active={mobileInterArticleAd.active} />}
             </div>
           </div>
 
@@ -126,7 +127,7 @@ const Home: React.FC<HomeProps> = ({ posts, ads }) => {
           {/* Rect Ad */}
           {sidebarAd && sidebarAd.active && (
             <div className="bg-white p-2 border border-gray-200">
-               <div dangerouslySetInnerHTML={{ __html: sidebarAd.code }} />
+               <AdSlot code={sidebarAd.code} active={true} />
             </div>
           )}
 
@@ -149,7 +150,7 @@ const Home: React.FC<HomeProps> = ({ posts, ads }) => {
           {/* Tenancy Ad */}
           {tenancyAd && tenancyAd.active && (
             <div className="rounded-sm overflow-hidden">
-               <div dangerouslySetInnerHTML={{ __html: tenancyAd.code }} />
+               <AdSlot code={tenancyAd.code} active={true} />
             </div>
           )}
 
@@ -167,7 +168,7 @@ const Home: React.FC<HomeProps> = ({ posts, ads }) => {
           <div className="sticky top-24 hidden lg:block">
             {stickyAd && stickyAd.active && (
               <div className="bg-white p-2 border border-gray-200 shadow-lg">
-                <div dangerouslySetInnerHTML={{ __html: stickyAd.code }} />
+                <AdSlot code={stickyAd.code} active={true} />
               </div>
             )}
           </div>
